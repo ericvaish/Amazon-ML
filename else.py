@@ -10,7 +10,7 @@ reader = easyocr.Reader(['en'])
 
 # Function to extract information using regex
 def extract_info(text):
-    # Define patterns for each entity, including both long and short forms
+    # Define patterns for each entity
     patterns = {
         'weight': r'(\d+\.?\d*)\s?(g|kg|microgram|mg|milligram|mcg|ounce|oz|pound|lb|ton|grams|kilogram|kilograms|milligrams|micrograms|pounds|tons)',
         'height': r'(\d+\.?\d*)\s?(cm|mm|m|ft|foot|inch|inches|metre|yard|yards|centimetre|millimetre|metre)',
@@ -44,7 +44,6 @@ def extract_info(text):
 
     return extracted_data
 
-
 # Function to process images in a directory and merge results with an input CSV
 def process_images_and_merge(input_csv, directory_path, output_csv):
     # Load input CSV file
@@ -54,11 +53,11 @@ def process_images_and_merge(input_csv, directory_path, output_csv):
     df = df.sort_values(by='image_link')
 
     # Create lists to hold extracted information
-    voltages, wattages, volumes = [], [], []
+    weights, heights, widths, depths, voltages, wattages, volumes = [], [], [], [], [], [], []
 
-    # Sort and iterate through all image files in the directory
     fld_img = sorted(os.listdir(directory_path))
 
+    # Iterate through all image files in the directory
     for image_name in fld_img:
         image_path = os.path.join(directory_path, image_name)
 
@@ -75,17 +74,16 @@ def process_images_and_merge(input_csv, directory_path, output_csv):
             extracted_info = extract_info(text_string)
 
             # Add extracted data to respective lists
+            # weights.append(extracted_info.get('weight', 'Not found'))
             voltages.append(extracted_info.get('voltage', 'Not found'))
             wattages.append(extracted_info.get('wattage', 'Not found'))
             volumes.append(extracted_info.get('volume', 'Not found'))
 
-        else:
-            # If the image does not exist or cannot be processed, add "Not found"
-            voltages.append('Not found')
-            wattages.append('Not found')
-            volumes.append('Not found')
-
     # Add new columns to the DataFrame
+    # df['Weight'] = weights
+    # df['Height'] = heights
+    # df['Width'] = widths
+    # df['Depth'] = depths
     df['Voltage'] = voltages
     df['Wattage'] = wattages
     df['Volume'] = volumes
@@ -94,10 +92,10 @@ def process_images_and_merge(input_csv, directory_path, output_csv):
     df.to_csv(output_csv, index=False)
     print(f"Extraction complete. Results saved in {output_csv}")
 
-# Paths (modify these according to your file paths)
-input_csv = '/content/filtered_1000_rows.csv'  # Replace with your input CSV file path
-directory_path = '/content/drive/MyDrive/1000_V_W/1000_V_W'  # Replace with your image directory path
-output_csv = '/content/output.csv'  # Replace with your output CSV file path
+# Paths
+input_csv = '/content/filtered_10_rows.csv'  # Replace with your input CSV file
+directory_path = '/content/drive/MyDrive/10_img/10_img'  # Replace with your directory path
+output_csv = '/content/output.csv'  # Replace with the path for your output CSV
 
 # Process the images, merge with the CSV, and save the result
 process_images_and_merge(input_csv, directory_path, output_csv)
