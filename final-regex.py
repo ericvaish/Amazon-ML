@@ -1,21 +1,8 @@
 import re
 
-def expand_units(input_string):
-    # Extended unit mapping from entity_unit_map, all units are in singular form
+def process_units(input_list):
+    # Extended unit mapping, all units are in singular form
     unit_mapping = {
-        'g': 'gram',
-        'kg': 'kilogram',
-        'mg': 'milligram',
-        'mcg': 'microgram',
-        'lb': 'pound',
-        'oz': 'ounce',
-        'ton': 'ton',
-        'cm': 'centimetre',
-        'mm': 'millimetre',
-        'm': 'metre',
-        'ft': 'foot',
-        'inch': 'inch',
-        'yard': 'yard',
         'v': 'volt',
         'kv': 'kilovolt',
         'mv': 'millivolt',
@@ -34,27 +21,45 @@ def expand_units(input_string):
         'imperial gallon': 'imperial gallon',
         'pint': 'pint',
         'quart': 'quart',
-        '"': 'inch'
-        }
+        'g': 'gram',
+        'kg': 'kilogram',
+        'mg': 'milligram',
+        'mcg': 'microgram',
+        'lb': 'pound',
+        'oz': 'ounce',
+        'ton': 'ton',
+        'cm': 'centimetre',
+        'mm': 'millimetre',
+        'm': 'metre',
+        'ft': 'foot',
+        'inch': 'inch',
+        'yard': 'yard'
+    }
 
-    # Use regex to find all occurrences of numeric values followed by units
-    pattern = r'(\d+\.?\d*)\s*([a-zA-Z"]+)'
-    matches = re.findall(pattern, input_string)
+    # Extract and process the units from the input list
+    values = []
+    unit = None
+
+    for item in input_list:
+        # Use regex to extract numeric value and unit
+        match = re.match(r'(\d+\.?\d*)\s*([a-zA-Z]+)', item)
+        if match:
+            value = float(match.group(1))
+            current_unit = match.group(2).lower()
+
+            if unit is None:
+                unit = current_unit
+
+            # Only add to list if the unit matches the first unit encountered
+            if current_unit == unit:
+                values.append(value)
     
-    if matches:
-        expanded_results = []
-        for match in matches:
-            # Convert value to float
-            value = float(match[0])
-            unit = match[1].lower()
-
-            # Find the singular form of the unit, if available
-            full_unit = unit_mapping.get(unit, unit)
-
-            # Append the expanded result with the float value and singular unit form
-            expanded_results.append(f"{value} {full_unit}")
-        
-        # Return the expanded results as a single string
-        return ', '.join(expanded_results)
-    else:
-        return "No valid entities found"
+    # Convert the unit to its full form
+    full_unit = unit_mapping.get(unit, unit)
+    
+    # Sort values in ascending order
+    values.sort()
+    
+    # Return the sorted list and the unit
+    return values, full_unit
+    
