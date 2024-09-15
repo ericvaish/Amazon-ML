@@ -37,17 +37,23 @@ def expand_units(input_string):
         '"': 'inch'
     }
 
-    # Use regex to extract the numeric value and unit, including optional space and the " symbol
-    match = re.match(r'(\d+\.?\d*)\s*([a-zA-Z"]+)', input_string)
+    # Use regex to find all occurrences of numeric values followed by units
+    pattern = r'(\d+\.?\d*)\s*([a-zA-Z"]+)'
+    matches = re.findall(pattern, input_string)
     
-    if match:
-        value = match.group(1)
-        unit = match.group(2).lower()
+    if matches:
+        expanded_results = []
+        for match in matches:
+            value = match[0]
+            unit = match[1].lower()
 
-        # Find the singular form of the unit, if available
-        full_unit = unit_mapping.get(unit, unit)
+            # Find the singular form of the unit, if available
+            full_unit = unit_mapping.get(unit, unit)
 
-        # Return the expanded result with singular unit form
-        return f"{value} {full_unit}"
+            # Append the expanded result with singular unit form
+            expanded_results.append(f"{value} {full_unit}")
+        
+        # Return the expanded results as a single string
+        return ', '.join(expanded_results)
     else:
-        return "Invalid input"
+        return "No valid entities found"
