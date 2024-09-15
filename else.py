@@ -8,7 +8,7 @@ reader = easyocr.Reader(['en'])
 
 # Function to extract information using regex
 def extract_info(text, entity_name):
-    # Define patterns for each entity
+    # Define patterns for each entity with capturing groups for value and unit
     patterns = {
         'weight': r'(\d+\.?\d*)\s?(g|kg|microgram|mg|milligram|mcg|ounce|oz|pound|lb|ton|grams|kilogram|kilograms|milligrams|micrograms|pounds|tons)',
         'height': r'(\d+\.?\d*)\s?(cm|mm|m|ft|foot|inch|inches|metre|yard|yards|centimetre|millimetre|metre|")',
@@ -27,18 +27,9 @@ def extract_info(text, entity_name):
     if pattern:
         matches = re.findall(pattern, text, re.IGNORECASE)
         if matches:
-            # Parse range if it's present, otherwise treat as a single value
-            extracted_values = []
-            for match in matches:
-                value = match[0]
-                if '-' in value:  # Handle range (e.g., "100-240V")
-                    start, end = value.split('-')
-                    extracted_values.extend([float(start), float(end)])
-                else:
-                    extracted_values.append(float(value))
-            # Sort the values
-            sorted_values = sorted(extracted_values)
-            extracted_data[entity_name] = sorted_values
+            # Format the extracted values with units
+            extracted_values = [f"{match[0]} {match[1]}" for match in matches]
+            extracted_data[entity_name] = extracted_values
         else:
             extracted_data[entity_name] = 'Not found'
     else:
@@ -94,6 +85,7 @@ def process_images_and_merge(input_csv, directory_path, output_csv):
 # Paths
 input_csv = '/content/filtered_10_rows.csv'  # Replace with your input CSV file
 directory_path = '/content/drive/MyDrive/10_img/10_img'  # Replace with your directory path
+output_csv = '/content/merged_results.csv'  # Replace with your desired output CSV file
 
 # Process the images, merge with the CSV, and save the result
 process_images_and_merge(input_csv, directory_path, output_csv)
