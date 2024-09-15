@@ -35,7 +35,7 @@ def expand_units(input_string):
         'pint': 'pint',
         'quart': 'quart',
         '"': 'inch'
-    }
+        }
 
     # Use regex to find all occurrences of numeric values followed by units
     pattern = r'(\d+\.?\d*)\s*([a-zA-Z"]+)'
@@ -44,13 +44,14 @@ def expand_units(input_string):
     if matches:
         expanded_results = []
         for match in matches:
-            value = match[0]
+            # Convert value to float
+            value = float(match[0])
             unit = match[1].lower()
 
             # Find the singular form of the unit, if available
             full_unit = unit_mapping.get(unit, unit)
 
-            # Append the expanded result with singular unit form
+            # Append the expanded result with the float value and singular unit form
             expanded_results.append(f"{value} {full_unit}")
         
         # Return the expanded results as a single string
